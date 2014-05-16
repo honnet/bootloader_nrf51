@@ -1,0 +1,16 @@
+# build files
+build/*
+obj/*
+bin/*
+
+# osx files
+.DS_Store
+
+# Object files
+*.o
+
+# jlink files
+*.jlink
+*.log
+
+
