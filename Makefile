@@ -176,7 +176,7 @@ $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex: $(OUTPUT_BINARY_DIRECTORY)/$(
 	$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 
 ## Program device
-flash: rm-flash.jlink flash.jlink stopdebug
+flash: rm-flash.jlink flash.jlink stopdebug all
 	$(JLINK) $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
 
 rm-flash.jlink:
