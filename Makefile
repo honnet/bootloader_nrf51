@@ -182,7 +182,7 @@ rm-flash.jlink:
 	-rm -rf $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
 
 flash.jlink:
-	echo "device nrf51822\nspeed 1000\nr\nloadbin $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin, $(FLASH_START_ADDRESS)\nw 10001014 3b800\nr\ng\nexit\n" > $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
+	echo "device nrf51822\nspeed 1000\nr\nloadbin $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin, $(FLASH_START_ADDRESS)\nw4 10001014 3b800\nr\ng\nexit\n" > $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
 
 flash-softdevice: erase-all flash-softdevice.jlink stopdebug
 ifndef SOFTDEVICE
