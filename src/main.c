@@ -5,9 +5,9 @@
  * @ingroup dfu_bootloader_api
  * @brief Bootloader project main file.
  *
- * -# Receive start data package. 
- * -# Based on start packet, prepare NVM area to store received data. 
- * -# Receive data packet. 
+ * -# Receive start data package.
+ * -# Based on start packet, prepare NVM area to store received data.
+ * -# Receive data packet.
  * -# Validate data packet.
  * -# Write Data packet to NVM.
  * -# If not finished - Wait for next packet.
@@ -53,17 +53,17 @@
 #define SCHED_QUEUE_SIZE                20                                                      /**< Maximum number of events in the scheduler queue. */
 
 
-/**@brief Function for error handling, which is called when an error has occurred. 
+/**@brief Function for error handling, which is called when an error has occurred.
  *
- * @warning This handler is an example only and does not fit a final product. You need to analyze 
+ * @warning This handler is an example only and does not fit a final product. You need to analyze
  *          how your product is supposed to react in case of error.
  *
  * @param[in] error_code  Error code supplied to the handler.
  * @param[in] line_num    Line number where the handler is called.
- * @param[in] p_file_name Pointer to the file name. 
+ * @param[in] p_file_name Pointer to the file name.
  */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
-{    
+{
     //nrf_gpio_pin_set(LED_7);
     // This call can be used for debug purposes during application development.
     // @note CAUTION: Activating this code will write the stack to flash on an error.
@@ -83,7 +83,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
  *
  * @details This function will be called in case of an assert in the SoftDevice.
  *
- * @warning This handler is an example only and does not fit a final product. You need to analyze 
+ * @warning This handler is an example only and does not fit a final product. You need to analyze
  *          how your product is supposed to react in case of Assert.
  * @warning On assert from the SoftDevice, the system can only recover on reset.
  *
@@ -127,7 +127,7 @@ static void timers_init(void)
 /**@brief Function for initializing the button module.
  */
 static void buttons_init(void)
-{   
+{
     nrf_gpio_cfg_sense_input(BOOTLOADER_BUTTON_PIN,
                              NRF_GPIO_PIN_PULLDOWN,
                              NRF_GPIO_PIN_SENSE_HIGH);
@@ -154,7 +154,7 @@ static void sys_evt_dispatch(uint32_t event)
 static void ble_stack_init(void)
 {
     uint32_t err_code;
-    
+
     //SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, true);
     SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, true);
 
@@ -194,7 +194,7 @@ int main(void)
     scheduler_init();
 
     bootloader_is_pushed = ((nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1)? true: false);
-    
+
     if (bootloader_is_pushed || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
         nrf_gpio_pin_set(BOOTLOADER_LED_PIN);
@@ -210,7 +210,7 @@ int main(void)
 
         // Select a bank region to use as application region.
         // @note: Only applications running from DFU_BANK_0_REGION_START is supported.
-        bootloader_app_start(DFU_BANK_0_REGION_START);   
+        bootloader_app_start(DFU_BANK_0_REGION_START);
     }
 
     NVIC_SystemReset();
