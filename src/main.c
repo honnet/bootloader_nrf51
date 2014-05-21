@@ -176,7 +176,7 @@ static void scheduler_init(void)
 int main(void)
 {
     uint32_t err_code;
-    bool     bootloader_is_pushed = false;
+    bool bootloader_is_pushed = false;
 
     // This check ensures that the defined fields in the bootloader corresponds with actual
     // setting in the nRF51 chip.
@@ -193,9 +193,10 @@ int main(void)
     ble_stack_init();
     scheduler_init();
 
-    bootloader_is_pushed = ((nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1)? true: false);
+    bootloader_is_pushed = (nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1);
+    magic_word_is_present = (*(volatile uint32_t *) 0x20003c7c == 0xDeadBeef);
 
-    if (bootloader_is_pushed || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
+    if (bootloader_is_pushed || magic_word_is_present || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
         nrf_gpio_pin_set(BOOTLOADER_LED_PIN);
 
@@ -207,6 +208,7 @@ int main(void)
     if (bootloader_app_is_valid(DFU_BANK_0_REGION_START))
     {
         nrf_gpio_pin_clear(BOOTLOADER_LED_PIN);
+        *(volatile uint32_t *) 0x20003c7c == 0xffffffff;
 
         // Select a bank region to use as application region.
         // @note: Only applications running from DFU_BANK_0_REGION_START is supported.
