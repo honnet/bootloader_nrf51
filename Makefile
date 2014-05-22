@@ -247,5 +247,8 @@ flash-dfu: release ${SOFTDEVICE_ELF} ${ELF} startgdbserver
 	${GDB} -ex "source scripts/flash-dfu.gdb" -ex "flash ${SOFTDEVICE_ELF} ${ELF}" -ex "set confirm off" -ex "quit"
 	$(MAKE) stopgdbserver
 
+enter-dfu: startgdbserver
+	$(GDB) -ex "source scripts/flash-dfu.gdb" -ex "enter-dfu-mode" -ex "set confirm off" -ex "quit"
+
 .PHONY: flash flash-dfu flash-softdevice erase-all startdebug stopdebug startgdbserver stopgdbserver
 

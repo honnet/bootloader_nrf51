@@ -21,3 +21,10 @@ define flash
   mon reset
   mon go
 end
+
+define enter-dfu
+  mon halt
+  set {int} 0x20003c7c = 0xade1e
+  mon reset
+  mon go
+end
