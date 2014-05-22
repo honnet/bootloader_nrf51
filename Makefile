@@ -44,18 +44,17 @@ CPU := cortex-m0
 
 GDB_PORT_NUMBER := 2331
 
-# Toolchain
-GNU_INSTALL_ROOT := /usr
+# Toolchain (must be in PATH)
 GNU_VERSION := 4.8.3
 GNU_PREFIX := arm-none-eabi
-CC       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gcc"
-AS       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-as"
-AR       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-ar" -r
-LD       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-ld"
-NM       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-nm"
-OBJDUMP  		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-objdump"
-OBJCOPY  		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-objcopy"
-GDB       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gdb"
+CC       		:= $(GNU_PREFIX)-gcc
+AS       		:= $(GNU_PREFIX)-as
+AR       		:= $(GNU_PREFIX)-ar -r
+LD       		:= $(GNU_PREFIX)-ld
+NM       		:= $(GNU_PREFIX)-nm
+OBJDUMP  		:= $(GNU_PREFIX)-objdump
+OBJCOPY  		:= $(GNU_PREFIX)-objcopy
+GDB       		:= $(GNU_PREFIX)-gdb
 CGDB            := "/usr/local/bin/cgdb"
 
 MK 				:= mkdir
@@ -248,7 +247,7 @@ flash-dfu: release ${SOFTDEVICE_ELF} ${ELF} startgdbserver
 	$(MAKE) stopgdbserver
 
 enter-dfu: startgdbserver
-	$(GDB) -ex "source scripts/flash-dfu.gdb" -ex "enter-dfu-mode" -ex "set confirm off" -ex "quit"
+	$(GDB) -ex "source scripts/flash-dfu.gdb" -ex "enter-dfu" -ex "set confirm off" -ex "quit"
 
-.PHONY: flash flash-dfu flash-softdevice erase-all startdebug stopdebug startgdbserver stopgdbserver
+.PHONY: flash flash-dfu flash-softdevice erase-all startdebug stopdebug startgdbserver stopgdbserver enter-dfu
 
