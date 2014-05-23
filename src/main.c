@@ -194,7 +194,7 @@ int main(void)
     scheduler_init();
 
     bootloader_is_pushed = (nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1);
-    magic_word_is_present = (*(volatile uint32_t *) 0x20003c7c == 0xDeadBeef);
+    magic_word_is_present = (*(volatile uint32_t *) 0x20003c7c == 0xAde1e);
 
     if (bootloader_is_pushed || magic_word_is_present || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
