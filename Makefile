@@ -44,18 +44,17 @@ CPU := cortex-m0
 
 GDB_PORT_NUMBER := 2331
 
-# Toolchain
-GNU_INSTALL_ROOT := /usr
+# Toolchain (must be in PATH)
 GNU_VERSION := 4.8.3
 GNU_PREFIX := arm-none-eabi
-CC       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gcc"
-AS       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-as"
-AR       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-ar" -r
-LD       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-ld"
-NM       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-nm"
-OBJDUMP  		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-objdump"
-OBJCOPY  		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-objcopy"
-GDB       		:= "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-gdb"
+CC       		:= $(GNU_PREFIX)-gcc
+AS       		:= $(GNU_PREFIX)-as
+AR       		:= $(GNU_PREFIX)-ar -r
+LD       		:= $(GNU_PREFIX)-ld
+NM       		:= $(GNU_PREFIX)-nm
+OBJDUMP  		:= $(GNU_PREFIX)-objdump
+OBJCOPY  		:= $(GNU_PREFIX)-objcopy
+GDB       		:= $(GNU_PREFIX)-gdb
 CGDB            := "/usr/local/bin/cgdb"
 
 MK 				:= mkdir
@@ -218,13 +217,18 @@ erase-all: erase-all.jlink
 erase-all.jlink:
 	$(ECHO) "device nrf51822\nw4 4001e504 2\nw4 4001e50c 1\nw4 4001e514 1\nr\nexit\n" > $(OUTPUT_BINARY_DIRECTORY)/erase-all.jlink
 
-startdebug: stopdebug debug.jlink .gdbinit
+startgdbserver: stopgdbserver debug.jlink .gdbinit
+	-killall $(JLINKGDBSERVER)
 	$(JLINKGDBSERVER) -single -if swd -speed 1000 -port $(GDB_PORT_NUMBER) &
 	sleep 1
+
+stopgdbserver:
+	-killall $(JLINKGDBSERVER)
+
+startdebug: stopdebug startgdbserver
 	$(GDB) $(ELF)
 
-stopdebug:
-	-killall $(JLINKGDBSERVER)
+stopdebug: stopgdbserver
 
 .gdbinit:
 	$(ECHO) "target remote localhost:$(GDB_PORT_NUMBER)\nmonitor flash download = 1\nmonitor flash device = nrf51822\nbreak main\nmon reset\n" > .gdbinit
@@ -232,5 +236,18 @@ stopdebug:
 debug.jlink:
 	echo "Device nrf51822" > $(OUTPUT_BINARY_DIRECTORY)/debug.jlink
 
-.PHONY: flash flash-softdevice erase-all startdebug stopdebug
+SOFTDEVICE_ELF = ${OUTPUT_BINARY_DIRECTORY}/${shell basename ${SOFTDEVICE:.hex=.elf}}
+
+${SOFTDEVICE_ELF}: ${SOFTDEVICE}
+	mkdir -p ${shell dirname ${SOFTDEVICE_ELF}}
+	${OBJCOPY} -Iihex -Oelf32-littlearm ${SOFTDEVICE} ${SOFTDEVICE_ELF}
+
+flash-dfu: release ${SOFTDEVICE_ELF} ${ELF} startgdbserver
+	${GDB} -ex "source scripts/flash-dfu.gdb" -ex "flash ${SOFTDEVICE_ELF} ${ELF}" -ex "set confirm off" -ex "quit"
+	$(MAKE) stopgdbserver
+
+enter-dfu: startgdbserver
+	$(GDB) -ex "source scripts/flash-dfu.gdb" -ex "enter-dfu" -ex "set confirm off" -ex "quit"
+
+.PHONY: flash flash-dfu flash-softdevice erase-all startdebug stopdebug startgdbserver stopgdbserver enter-dfu
 
