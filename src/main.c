@@ -181,7 +181,7 @@ int main(void)
     if ((*(volatile uint32_t *) 0x20003c7c == 0xade1e) || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
         nrf_gpio_pin_set(BOOTLOADER_LED_PIN);
-        *(volatile uint32_t *) 0x20003c7c == 0xffffffff;
+        *(volatile uint32_t *) 0x20003c7c = 0xffffffff;
 
         // Initiate an update of the firmware.
         err_code = bootloader_dfu_start();
