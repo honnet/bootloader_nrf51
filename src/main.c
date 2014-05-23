@@ -51,7 +51,7 @@
 #define SCHED_MAX_EVENT_DATA_SIZE       MAX(APP_TIMER_SCHED_EVT_SIZE, 0)                        /**< Maximum size of scheduler events. */
 
 #define SCHED_QUEUE_SIZE                20                                                      /**< Maximum number of events in the scheduler queue. */
-
+#define MAGIC_WORD                      (*(volatile uint32_t *) 0x20003c7c)                     /**< Random address around the end of RAM. */
 
 /**@brief Function for error handling, which is called when an error has occurred.
  *
@@ -194,10 +194,13 @@ int main(void)
     scheduler_init();
 
     bootloader_is_pushed = (nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1);
-    magic_word_is_present = (*(volatile uint32_t *) 0x20003c7c == 0xAde1e);
+    bool magic_word_is_present = (MAGIC_WORD == 0xAde1e);
 
     if (bootloader_is_pushed || magic_word_is_present || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
+        if (magic_word_is_present)
+            MAGIC_WORD = 0xffffffff;
+
         nrf_gpio_pin_set(BOOTLOADER_LED_PIN);
 
         // Initiate an update of the firmware.
@@ -208,7 +211,6 @@ int main(void)
     if (bootloader_app_is_valid(DFU_BANK_0_REGION_START))
     {
         nrf_gpio_pin_clear(BOOTLOADER_LED_PIN);
-        *(volatile uint32_t *) 0x20003c7c == 0xffffffff;
 
         // Select a bank region to use as application region.
         // @note: Only applications running from DFU_BANK_0_REGION_START is supported.
