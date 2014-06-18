@@ -21,7 +21,7 @@
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
-#include "boards.h"
+#include "board.h"
 #include "app_scheduler.h"
 #include "softdevice_handler.h"
 #include "app_timer.h"
@@ -32,15 +32,15 @@
 #include "pstorage.h"
 #include "ble_lbs.h"
 
-#define WAKEUP_BUTTON_PIN               BUTTON_0                                    /**< Button used to wake up the application. */
 
-#define ADVERTISING_LED_PIN_NO          LED_0                                       /**< Is on when device is advertising. */
-#define CONNECTED_LED_PIN_NO            LED_1                                       /**< Is on when device has connected. */
+#define WAKEUP_BUTTON_PIN               BUTTON                                      /**< Button used to wake up the application. */
 
-#define LEDBUTTON_LED_PIN_NO            LED_0
-#define LEDBUTTON_BUTTON_PIN_NO         BUTTON_1
+#define ADVERTISING_LED_PIN_NO          LED                                         /**< Is on when device is advertising. */
 
-#define DEVICE_NAME                     "LedButtonDemo"                           /**< Name of device. Will be included in the advertising data. */
+#define LEDBUTTON_LED_PIN_NO            LED
+#define LEDBUTTON_BUTTON_PIN_NO         BUTTON
+
+#define DEVICE_NAME                     "Butonless_DFU_trigger"                           /**< Name of device. Will be included in the advertising data. */
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
@@ -130,7 +130,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 static void leds_init(void)
 {
     nrf_gpio_cfg_output(ADVERTISING_LED_PIN_NO);
-    nrf_gpio_cfg_output(CONNECTED_LED_PIN_NO);
     nrf_gpio_cfg_output(LEDBUTTON_LED_PIN_NO);
 }
 
@@ -343,7 +342,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            nrf_gpio_pin_set(CONNECTED_LED_PIN_NO);
             nrf_gpio_pin_clear(ADVERTISING_LED_PIN_NO);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 
@@ -352,7 +350,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            nrf_gpio_pin_clear(CONNECTED_LED_PIN_NO);
+            nrf_gpio_pin_set(ADVERTISING_LED_PIN_NO);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
 
             err_code = app_button_disable();
@@ -452,7 +450,7 @@ static void ble_stack_init(void)
     uint32_t err_code;
 
     // Initialize the SoftDevice handler module.
-    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_XTAL_20_PPM, false);
+    SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_SYNTH_250_PPM, false);
 
     // Register with the SoftDevice handler module for BLE events.
     err_code = softdevice_ble_evt_handler_set(ble_evt_dispatch);
