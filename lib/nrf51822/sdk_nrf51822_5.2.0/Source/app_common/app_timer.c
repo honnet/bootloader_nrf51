@@ -1032,7 +1032,8 @@ static timer_user_id_t user_id_get(void)
 {
     timer_user_id_t ret;
 
-    STATIC_ASSERT(APP_TIMER_INT_LEVELS == 3);
+    // XXX commented because of "unused typedef" warning:
+//    STATIC_ASSERT(APP_TIMER_INT_LEVELS == 3);
 
     switch (current_int_priority_get())
     {
