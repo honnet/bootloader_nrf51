@@ -1,11 +1,9 @@
 # Project Source
 C_SOURCE_FILES += main.c
-C_SOURCE_FILES += dfu_transport_ble.c
-C_SOURCE_FILES += dfu_dual_bank.c
-C_SOURCE_FILES += bootloader_util_arm.c
-C_SOURCE_FILES += bootloader.c
+C_SOURCE_FILES += ble_lbs.c
 
 # APP Common
+C_SOURCE_FILES += app_button.c
 C_SOURCE_FILES += app_timer.c
 C_SOURCE_FILES += app_scheduler.c
 C_SOURCE_FILES += app_gpiote.c
@@ -15,10 +13,11 @@ C_SOURCE_FILES += softdevice_handler.c
 C_SOURCE_FILES += hci_mem_pool.c
 
 # BLE
-C_SOURCE_FILES += ble_dfu.c
 C_SOURCE_FILES += ble_srv_common.c
 C_SOURCE_FILES += ble_advdata.c
 C_SOURCE_FILES += ble_conn_params.c
+C_SOURCE_FILES += ble_debug_assert_handler.c
+C_SOURCE_FILES += ble_error_log.c
 
 # startup files
 C_SOURCE_FILES += system_$(DEVICESERIES).c
@@ -35,7 +34,7 @@ SOFTDEVICE := lib/nrf51822/s110_nrf51822_6.0.0/s110_nrf51822_6.0.0_softdevice.he
 OBJECT_DIRECTORY := obj
 LISTING_DIRECTORY := bin
 OUTPUT_BINARY_DIRECTORY := build
-OUTPUT_FILENAME := drix-bldr
+OUTPUT_FILENAME := bilateral_com
 ELF := $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out
 
 DEVICE := NRF51
@@ -72,12 +71,11 @@ C_SOURCE_PATHS += $(SDK_SOURCE_PATH)app_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)sd_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble/ble_services
+
 ASSEMBLER_SOURCE_PATHS = src/startup
 
 # Include Paths
 INCLUDEPATHS += -Isrc
-INCLUDEPATHS += -Isrc/include
-INCLUDEPATHS += -Isrc/include/ble_transport
 INCLUDEPATHS += -I$(SDK_PATH)Include
 INCLUDEPATHS += -I$(SDK_PATH)Include/gcc
 INCLUDEPATHS += -I$(SDK_PATH)Include/app_common
@@ -89,7 +87,7 @@ INCLUDEPATHS += -I$(SDK_PATH)Include/ble/ble_services
 # Compiler flags
 CFLAGS += -mcpu=$(CPU) -mthumb -mabi=aapcs -D$(DEVICE) --std=gnu99
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
-#CFLAGS += -Wall# -Werror
+CFLAGS += -Wall -Werror
 
 # Linker flags
 CONFIG_PATH += config/
@@ -100,7 +98,7 @@ LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
 LDFLAGS += -mcpu=$(CPU) -mthumb -mabi=aapcs
 LDFLAGS += -L$(CONFIG_PATH) -T$(LINKER_SCRIPT)
 
-FLASH_START_ADDRESS = 0x3B800
+FLASH_START_ADDRESS = 0x14000
 
 # Sorting removes duplicates
 BUILD_DIRECTORIES := $(sort $(OBJECT_DIRECTORY) $(OUTPUT_BINARY_DIRECTORY) $(LISTING_DIRECTORY) )
