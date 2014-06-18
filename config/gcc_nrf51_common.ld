@@ -47,12 +47,6 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
-    .bootloader_settings_block 0x0003FC00 :
-    {
-        KEEP(*(.bootloader_settings_sect))
-    } > bootloader_settings
-
-
     .text : ALIGN(4)
 	{
 		KEEP(*(.Vectors))
