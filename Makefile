@@ -10,7 +10,6 @@ C_SOURCE_FILES += app_gpiote.c
 C_SOURCE_FILES += crc16.c
 C_SOURCE_FILES += pstorage.c
 C_SOURCE_FILES += softdevice_handler.c
-C_SOURCE_FILES += hci_mem_pool.c
 
 # BLE
 C_SOURCE_FILES += ble_srv_common.c
