@@ -86,7 +86,8 @@ INCLUDEPATHS += -I$(SDK_PATH)Include/ble/ble_services
 # Compiler flags
 CFLAGS += -mcpu=$(CPU) -mthumb -mabi=aapcs -D$(DEVICE) --std=gnu99
 CFLAGS += -DBLE_STACK_SUPPORT_REQD
-CFLAGS += -Wall -Werror
+CFLAGS += -Wall -Werror # -Wextra
+CFLAGS += -ffunction-sections -fdata-sections # split bin in little sections...
 
 # Linker flags
 CONFIG_PATH += config/
@@ -96,6 +97,7 @@ LDFLAGS += -L"$(GNU_INSTALL_ROOT)/lib/gcc/arm-none-eabi/$(GNU_VERSION)/armv6-m"
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
 LDFLAGS += -mcpu=$(CPU) -mthumb -mabi=aapcs
 LDFLAGS += -L$(CONFIG_PATH) -T$(LINKER_SCRIPT)
+LDFLAGS += -Wl,--gc-sections # remove unused sections (separated thanks to the last CFLAGS)
 
 FLASH_START_ADDRESS = 0x14000
 
