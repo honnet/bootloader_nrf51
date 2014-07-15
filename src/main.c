@@ -27,18 +27,12 @@
 #include "app_timer.h"
 #include "ble_error_log.h"
 #include "app_gpiote.h"
-#include "app_button.h"
 #include "ble_debug_assert_handler.h"
 #include "pstorage.h"
 #include "ble_lbs.h"
 
 
-#define WAKEUP_BUTTON_PIN               BUTTON                                      /**< Button used to wake up the application. */
-
 #define ADVERTISING_LED_PIN_NO          LED                                         /**< Is on when device is advertising. */
-
-#define LEDBUTTON_LED_PIN_NO            LED
-#define LEDBUTTON_BUTTON_PIN_NO         BUTTON
 
 #define DEVICE_NAME                     "Butonless_DFU_trigger"                           /**< Name of device. Will be included in the advertising data. */
 
@@ -58,8 +52,6 @@
 #define MAX_CONN_PARAMS_UPDATE_COUNT    3                                           /**< Number of attempts before giving up the connection parameter negotiation. */
 
 #define APP_GPIOTE_MAX_USERS            1                                           /**< Maximum number of users of the GPIOTE handler. */
-
-#define BUTTON_DETECTION_DELAY          APP_TIMER_TICKS(50, APP_TIMER_PRESCALER)    /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 
 #define SEC_PARAM_TIMEOUT               30                                          /**< Timeout for Pairing Request or Security Request (in seconds). */
 #define SEC_PARAM_BOND                  1                                           /**< Perform bonding. */
@@ -130,7 +122,6 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 static void leds_init(void)
 {
     nrf_gpio_cfg_output(ADVERTISING_LED_PIN_NO);
-    nrf_gpio_cfg_output(LEDBUTTON_LED_PIN_NO);
 }
 
 
@@ -344,17 +335,11 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
         case BLE_GAP_EVT_CONNECTED:
             nrf_gpio_pin_clear(ADVERTISING_LED_PIN_NO);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-
-            err_code = app_button_enable();
-            APP_ERROR_CHECK(err_code);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
             nrf_gpio_pin_set(ADVERTISING_LED_PIN_NO);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-
-            err_code = app_button_disable();
-            APP_ERROR_CHECK(err_code);
 
             advertising_start();
             break;
@@ -394,11 +379,6 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
             if (p_ble_evt->evt.gap_evt.params.timeout.src == BLE_GAP_TIMEOUT_SRC_ADVERTISEMENT)
             {
                 nrf_gpio_pin_clear(ADVERTISING_LED_PIN_NO);
-
-                // Configure buttons with sense level low as wakeup source.
-                nrf_gpio_cfg_sense_input(WAKEUP_BUTTON_PIN,
-                                         BUTTON_PULL,
-                                         NRF_GPIO_PIN_SENSE_LOW);
 
                 // Go to system-off mode (this function will not return; wakeup will cause a reset)
                 err_code = sd_power_system_off();
@@ -470,49 +450,11 @@ static void scheduler_init(void)
 }
 
 
-static void button_event_handler(uint8_t pin_no, uint8_t button_action)
-{
-    uint32_t err_code;
-
-    switch (pin_no)
-    {
-        case LEDBUTTON_BUTTON_PIN_NO:
-            err_code = ble_lbs_on_button_change(&m_lbs, button_action);
-            if (err_code != NRF_SUCCESS &&
-                err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
-                err_code != NRF_ERROR_INVALID_STATE)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
-
-        default:
-            APP_ERROR_HANDLER(pin_no);
-            break;
-    }
-}
-
 /**@brief Function for initializing the GPIOTE handler module.
  */
 static void gpiote_init(void)
 {
     APP_GPIOTE_INIT(APP_GPIOTE_MAX_USERS);
-}
-
-
-/**@brief Function for initializing the button handler module.
- */
-static void buttons_init(void)
-{
-    // Note: Array must be static because a pointer to it will be saved in the Button handler
-    //       module.
-    static app_button_cfg_t buttons[] =
-    {
-        {WAKEUP_BUTTON_PIN, false, BUTTON_PULL, NULL},
-        {LEDBUTTON_BUTTON_PIN_NO, false, BUTTON_PULL, button_event_handler}
-    };
-
-    APP_BUTTON_INIT(buttons, sizeof(buttons) / sizeof(buttons[0]), BUTTON_DETECTION_DELAY, true);
 }
 
 
@@ -533,7 +475,6 @@ int main(void)
     leds_init();
     timers_init();
     gpiote_init();
-    buttons_init();
     ble_stack_init();
     scheduler_init();
     gap_params_init();
