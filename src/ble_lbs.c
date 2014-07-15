@@ -10,6 +10,7 @@
 #include "ble_srv_common.h"
 #include "app_util.h"
 
+#define STRING "01_triggers_DFU__00_reboots"
 
 /**@brief Function for handling the Connect event.
  *
@@ -89,7 +90,9 @@ static uint32_t led_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_ini
 
     char_md.char_props.read   = 1;
     char_md.char_props.write  = 1;
-    char_md.p_char_user_desc  = NULL;
+    char_md.p_char_user_desc  = (uint8_t*)(STRING);
+    char_md.char_user_desc_max_size = sizeof(STRING);
+    char_md.char_user_desc_size = sizeof(STRING);
     char_md.p_char_pf         = NULL;
     char_md.p_user_desc_md    = NULL;
     char_md.p_cccd_md         = NULL;

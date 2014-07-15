@@ -63,6 +63,9 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
+#define MAGIC_WORD                      (*(volatile uint32_t *) 0x20003c7c)                     /**< Random address around the end of RAM. */
+
+
 static ble_gap_sec_params_t             m_sec_params;                               /**< Security requirements for this application. */
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
 static ble_lbs_t                        m_lbs;
@@ -200,12 +203,9 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
     if (led_state)
     {
-        nrf_gpio_pin_set(LEDBUTTON_LED_PIN_NO);
+        MAGIC_WORD = 0xAde1e;
     }
-    else
-    {
-        nrf_gpio_pin_clear(LEDBUTTON_LED_PIN_NO);
-    }
+    NVIC_SystemReset();
 }
 
 /**@brief Function for initializing services that will be used by the application.
