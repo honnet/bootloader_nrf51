@@ -63,7 +63,7 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                                  /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-#define MAGIC_WORD                      (*(volatile uint32_t *) 0x20003c7c)                     /**< Random address around the end of RAM. */
+#define MAGIC_REG                       (*(volatile uint32_t *) 0x20003c7c)         /**< Random address around the end of RAM. */
 
 
 static ble_gap_sec_params_t             m_sec_params;                               /**< Security requirements for this application. */
@@ -203,7 +203,7 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 {
     if (led_state)
     {
-        MAGIC_WORD = 0xAde1e;
+        MAGIC_REG = 0xBeefFace;
     }
     NVIC_SystemReset();
 }
