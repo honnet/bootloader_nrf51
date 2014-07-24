@@ -98,6 +98,7 @@ LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_FILENAME).map
 LDFLAGS += -mcpu=$(CPU) -mthumb -mabi=aapcs
 LDFLAGS += -L$(CONFIG_PATH) -T$(LINKER_SCRIPT)
 LDFLAGS += -Wl,--gc-sections # remove unused sections (separated thanks to the last CFLAGS)
+LDFLAGS += -use-gold # use more efficient linker
 
 FLASH_START_ADDRESS = 0x14000
 
