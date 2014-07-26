@@ -1,6 +1,7 @@
 # Project Source
 C_SOURCE_FILES += main.c
 C_SOURCE_FILES += ble_bdt.c
+C_SOURCE_FILES += simple_uart.c
 
 # APP Common
 C_SOURCE_FILES += app_button.c
@@ -70,6 +71,7 @@ C_SOURCE_PATHS += $(SDK_SOURCE_PATH)app_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)sd_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble/ble_services
+C_SOURCE_PATHS += $(SDK_SOURCE_PATH)simple_uart
 
 ASSEMBLER_SOURCE_PATHS = src/startup
 

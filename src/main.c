@@ -27,7 +27,7 @@
 #include "ble_debug_assert_handler.h"
 #include "pstorage.h"
 #include "ble_bdt.h" // BDT: Butonless DFU trigger
-
+#include "debug.h"
 
 #define ADVERTISING_LED_PIN_NO          LED                                         /**< Is on when device is advertising. */
 
@@ -125,6 +125,17 @@ static void leds_init(void)
 }
 
 
+/**@brief Function for the UART initialization.
+ *
+ * @details Initializes the UART to talk on the serial port
+ */
+static void uart_init(void)
+{
+    DP_cnf(RTS_PIN_NUMBER, TX_PIN_NUMBER, CTS_PIN_NUMBER, RX_PIN_NUMBER, false);
+    DP_str((const uint8_t *)"Starting!\n");
+}
+
+
 /**@brief Function for the Timer initialization.
  *
  * @details Initializes the timer module.
@@ -198,8 +209,11 @@ static void advertising_init(void)
 
 static void command_handler(ble_bdt_t * p_bdt, uint8_t command)
 {
+    DP_int(command); DP_str("\r\n");
+
     if (command != 0x00)
     {
+        DP_str("Trigger DFU\r\n");
         MAGIC_REG = 0xBeefFace; // write magic word to trigger DFU, see bootloader
     }
     NVIC_SystemReset();         // restart anyway
@@ -470,6 +484,7 @@ int main(void)
 {
     // Initialize
     leds_init();
+    uart_init();
     timers_init();
     gpiote_init();
     ble_stack_init();
