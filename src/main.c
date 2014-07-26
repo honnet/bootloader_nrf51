@@ -1,12 +1,9 @@
-/* Copyright (c) 2013 Nordic Semiconductor. All Rights Reserved.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the license.txt file.
- */
-
 /**
- * This file is the main file for the application described in application note
- * nAN-36 Creating Bluetooth® Low Energy Applications Using nRF51822.
+ * BDT: Buttonless DFU trigger
+ * In this file we show how to send a command from a smartphone for example
+ * and use it to reboot in DFU mode (00 => simple reboot, anything else => DFU).
+ * To do so we write a magic word at a specific RAM address and, when we reboot
+ * on DFU mode, we check if this word is present to allow loading new firmware.
  */
 
 #include <stdint.h>
@@ -29,12 +26,12 @@
 #include "app_gpiote.h"
 #include "ble_debug_assert_handler.h"
 #include "pstorage.h"
-#include "ble_lbs.h"
+#include "ble_bdt.h" // BDT: Butonless DFU trigger
 
 
 #define ADVERTISING_LED_PIN_NO          LED                                         /**< Is on when device is advertising. */
 
-#define DEVICE_NAME                     "Butonless_DFU_trigger"                           /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "Buttonless_DFU_trigger"                    /**< Name of device. Will be included in the advertising data. */
 
 #define APP_ADV_INTERVAL                64                                          /**< The advertising interval (in units of 0.625 ms. This value corresponds to 40 ms). */
 #define APP_ADV_TIMEOUT_IN_SECONDS      180                                         /**< The advertising timeout (in units of seconds). */
@@ -68,7 +65,7 @@
 
 static ble_gap_sec_params_t             m_sec_params;                               /**< Security requirements for this application. */
 static uint16_t                         m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the current connection. */
-static ble_lbs_t                        m_lbs;
+static ble_bdt_t                        m_bdt;
 
 #define SCHED_MAX_EVENT_DATA_SIZE       sizeof(app_timer_event_t)                   /**< Maximum size of scheduler events. Note that scheduler BLE stack events do not contain any data, as the events are being pulled from the stack in the event handler. */
 #define SCHED_QUEUE_SIZE                10                                          /**< Maximum number of events in the scheduler queue. */
@@ -181,7 +178,7 @@ static void advertising_init(void)
     ble_advdata_t scanrsp;
     uint8_t       flags = BLE_GAP_ADV_FLAGS_LE_ONLY_LIMITED_DISC_MODE;
 
-    ble_uuid_t adv_uuids[] = {{LBS_UUID_SERVICE, m_lbs.uuid_type}};
+    ble_uuid_t adv_uuids[] = {{BDT_UUID_SERVICE, m_bdt.uuid_type}};
 
     // Build and set advertising data
     memset(&advdata, 0, sizeof(advdata));
@@ -199,13 +196,13 @@ static void advertising_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
+static void command_handler(ble_bdt_t * p_bdt, uint8_t command)
 {
-    if (led_state)
+    if (command != 0x00)
     {
-        MAGIC_REG = 0xBeefFace;
+        MAGIC_REG = 0xBeefFace; // write magic word to trigger DFU, see bootloader
     }
-    NVIC_SystemReset();
+    NVIC_SystemReset();         // restart anyway
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -213,11 +210,11 @@ static void led_write_handler(ble_lbs_t * p_lbs, uint8_t led_state)
 static void services_init(void)
 {
     uint32_t err_code;
-    ble_lbs_init_t init;
+    ble_bdt_init_t init;
 
-    init.led_write_handler = led_write_handler;
+    init.command_handler = command_handler;
 
-    err_code = ble_lbs_init(&m_lbs, &init);
+    err_code = ble_bdt_init(&m_bdt, &init);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -404,7 +401,7 @@ static void ble_evt_dispatch(ble_evt_t * p_ble_evt)
 {
     on_ble_evt(p_ble_evt);
     ble_conn_params_on_ble_evt(p_ble_evt);
-    ble_lbs_on_ble_evt(&m_lbs, p_ble_evt);
+    ble_bdt_on_ble_evt(&m_bdt, p_ble_evt);
 }
 
 

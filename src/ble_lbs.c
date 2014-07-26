@@ -1,10 +1,4 @@
-/* Copyright (c) 2013 Nordic Semiconductor. All Rights Reserved.
- *
- * Use of this source code is governed by a BSD-style license that can be
- * found in the license.txt file.
- */
-
-#include "ble_lbs.h"
+#include "ble_bdt.h"
 #include <string.h>
 #include "nordic_common.h"
 #include "ble_srv_common.h"
@@ -14,59 +8,59 @@
 
 /**@brief Function for handling the Connect event.
  *
- * @param[in]   p_lbs       LED Service structure.
+ * @param[in]   p_bdt       Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_connect(ble_lbs_t * p_lbs, ble_evt_t * p_ble_evt)
+static void on_connect(ble_bdt_t * p_bdt, ble_evt_t * p_ble_evt)
 {
-    p_lbs->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
+    p_bdt->conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
 }
 
 
 /**@brief Function for handling the Disconnect event.
  *
- * @param[in]   p_lbs       LED Service structure.
+ * @param[in]   p_bdt       Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_disconnect(ble_lbs_t * p_lbs, ble_evt_t * p_ble_evt)
+static void on_disconnect(ble_bdt_t * p_bdt, ble_evt_t * p_ble_evt)
 {
     UNUSED_PARAMETER(p_ble_evt);
-    p_lbs->conn_handle = BLE_CONN_HANDLE_INVALID;
+    p_bdt->conn_handle = BLE_CONN_HANDLE_INVALID;
 }
 
 
 /**@brief Function for handling the Write event.
  *
- * @param[in]   p_lbs       LED Service structure.
+ * @param[in]   p_bdt       Service structure.
  * @param[in]   p_ble_evt   Event received from the BLE stack.
  */
-static void on_write(ble_lbs_t * p_lbs, ble_evt_t * p_ble_evt)
+static void on_write(ble_bdt_t * p_bdt, ble_evt_t * p_ble_evt)
 {
     ble_gatts_evt_write_t * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-    if ((p_evt_write->handle == p_lbs->led_char_handles.value_handle) &&
+    if ((p_evt_write->handle == p_bdt->char_handles.value_handle) &&
         (p_evt_write->len == 1) &&
-        (p_lbs->led_write_handler != NULL))
+        (p_bdt->command_handler != NULL))
     {
-        p_lbs->led_write_handler(p_lbs, p_evt_write->data[0]);
+        p_bdt->command_handler(p_bdt, p_evt_write->data[0]);
     }
 }
 
 
-void ble_lbs_on_ble_evt(ble_lbs_t * p_lbs, ble_evt_t * p_ble_evt)
+void ble_bdt_on_ble_evt(ble_bdt_t * p_bdt, ble_evt_t * p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_CONNECTED:
-            on_connect(p_lbs, p_ble_evt);
+            on_connect(p_bdt, p_ble_evt);
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
-            on_disconnect(p_lbs, p_ble_evt);
+            on_disconnect(p_bdt, p_ble_evt);
             break;
 
         case BLE_GATTS_EVT_WRITE:
-            on_write(p_lbs, p_ble_evt);
+            on_write(p_bdt, p_ble_evt);
             break;
 
         default:
@@ -76,10 +70,10 @@ void ble_lbs_on_ble_evt(ble_lbs_t * p_lbs, ble_evt_t * p_ble_evt)
 }
 
 
-/**@brief Function for adding the LED characteristic.
+/**@brief Function for adding the characteristic.
  *
  */
-static uint32_t led_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
+static uint32_t char_add(ble_bdt_t * p_bdt, const ble_bdt_init_t * p_bdt_init)
 {
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_t    attr_char_value;
@@ -98,8 +92,8 @@ static uint32_t led_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_ini
     char_md.p_cccd_md         = NULL;
     char_md.p_sccd_md         = NULL;
 
-    ble_uuid.type = p_lbs->uuid_type;
-    ble_uuid.uuid = LBS_UUID_LED_CHAR;
+    ble_uuid.type = p_bdt->uuid_type;
+    ble_uuid.uuid = BDT_UUID_CHAR;
 
     memset(&attr_md, 0, sizeof(attr_md));
 
@@ -119,39 +113,39 @@ static uint32_t led_char_add(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_ini
     attr_char_value.max_len      = sizeof(uint8_t);
     attr_char_value.p_value      = NULL;
 
-    return sd_ble_gatts_characteristic_add(p_lbs->service_handle, &char_md,
+    return sd_ble_gatts_characteristic_add(p_bdt->service_handle, &char_md,
                                                &attr_char_value,
-                                               &p_lbs->led_char_handles);
+                                               &p_bdt->char_handles);
 }
 
 
-uint32_t ble_lbs_init(ble_lbs_t * p_lbs, const ble_lbs_init_t * p_lbs_init)
+uint32_t ble_bdt_init(ble_bdt_t * p_bdt, const ble_bdt_init_t * p_bdt_init)
 {
     uint32_t   err_code;
     ble_uuid_t ble_uuid;
 
     // Initialize service structure
-    p_lbs->conn_handle       = BLE_CONN_HANDLE_INVALID;
-    p_lbs->led_write_handler = p_lbs_init->led_write_handler;
+    p_bdt->conn_handle       = BLE_CONN_HANDLE_INVALID;
+    p_bdt->command_handler = p_bdt_init->command_handler;
 
     // Add service
-    ble_uuid128_t base_uuid = { LBS_UUID_BASE };
-    err_code = sd_ble_uuid_vs_add(&base_uuid, &p_lbs->uuid_type);
+    ble_uuid128_t base_uuid = { BDT_UUID_BASE };
+    err_code = sd_ble_uuid_vs_add(&base_uuid, &p_bdt->uuid_type);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-    ble_uuid.type = p_lbs->uuid_type;
-    ble_uuid.uuid = LBS_UUID_SERVICE;
+    ble_uuid.type = p_bdt->uuid_type;
+    ble_uuid.uuid = BDT_UUID_SERVICE;
 
-    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &p_lbs->service_handle);
+    err_code = sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &p_bdt->service_handle);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-    err_code = led_char_add(p_lbs, p_lbs_init);
+    err_code = char_add(p_bdt, p_bdt_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;

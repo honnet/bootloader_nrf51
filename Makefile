@@ -1,6 +1,6 @@
 # Project Source
 C_SOURCE_FILES += main.c
-C_SOURCE_FILES += ble_lbs.c
+C_SOURCE_FILES += ble_bdt.c
 
 # APP Common
 C_SOURCE_FILES += app_button.c
