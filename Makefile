@@ -177,31 +177,6 @@ $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex: $(OUTPUT_BINARY_DIRECTORY)/$(
 	$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).out $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).hex
 
 ## Program device
-flash: rm-flash.jlink flash.jlink stopdebug all
-	$(JLINK) $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
-
-rm-flash.jlink:
-	-rm -rf $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
-
-flash.jlink:
-	$(ECHO) "device nrf51822\nspeed 1000\nr\nloadbin $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_FILENAME).bin, $(FLASH_START_ADDRESS)\nw4 10001014 3b800\nr\ng\nexit\n" > $(OUTPUT_BINARY_DIRECTORY)/flash.jlink
-
-flash-softdevice: erase-all flash-softdevice.jlink stopdebug
-ifndef SOFTDEVICE
-	$(error "You need to set the SOFTDEVICE command-line parameter to a path (without spaces) to the softdevice hex-file")
-endif
-
-	# Convert from hex to binary. Split original hex in two to avoid huge (>250 MB) binary file with just 0s.
-	$(OBJCOPY) -Iihex -Obinary --remove-section .sec3 $(SOFTDEVICE) $(OUTPUT_BINARY_DIRECTORY)/_mainpart.bin
-	$(OBJCOPY) -Iihex -Obinary --remove-section .sec1 --remove-section .sec2 $(SOFTDEVICE) $(OUTPUT_BINARY_DIRECTORY)/_uicr.bin
-
-	$(JLINK) $(OUTPUT_BINARY_DIRECTORY)/flash-softdevice.jlink
-
-flash-softdevice.jlink:
-	# Do magic. Write to NVMC to enable erase, do erase all and erase UICR, reset, enable writing, load mainpart bin, load uicr bin. Reset.
-	# Resetting in between is needed to disable the protections.
-	$(ECHO) "w4 4001e504 1\nloadbin \"$(OUTPUT_BINARY_DIRECTORY)/_mainpart.bin\" 0\nloadbin \"$(OUTPUT_BINARY_DIRECTORY)/_uicr.bin\" 0x10001000\nr\ng\nexit\n" > $(OUTPUT_BINARY_DIRECTORY)/flash-softdevice.jlink
-
 recover: recover.jlink erase-all.jlink pin-reset.jlink
 	$(JLINK) $(OUTPUT_BINARY_DIRECTORY)/recover.jlink
 	$(JLINK) $(OUTPUT_BINARY_DIRECTORY)/erase-all.jlink
@@ -244,8 +219,12 @@ ${SOFTDEVICE_ELF}: ${SOFTDEVICE}
 	mkdir -p ${shell dirname ${SOFTDEVICE_ELF}}
 	${OBJCOPY} -Iihex -Oelf32-littlearm ${SOFTDEVICE} ${SOFTDEVICE_ELF}
 
-flash-dfu: release ${SOFTDEVICE_ELF} ${ELF} startgdbserver
-	${GDB} -ex "source scripts/flash-dfu.gdb" -ex "flash ${SOFTDEVICE_ELF} ${ELF}" -ex "set confirm off" -ex "quit"
+flash: release ${ELF} startgdbserver
+	${GDB} -ex "source scripts/flash-dfu.gdb" -ex "flash ${ELF}" -ex "set confirm off" -ex "quit"
+	$(MAKE) stopgdbserver
+
+flash-all: release ${SOFTDEVICE_ELF} ${ELF} startgdbserver
+	${GDB} -ex "source scripts/flash-dfu.gdb" -ex "flash-all ${SOFTDEVICE_ELF} ${ELF}" -ex "set confirm off" -ex "quit"
 	$(MAKE) stopgdbserver
 
 enter-dfu: startgdbserver

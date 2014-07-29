@@ -7,9 +7,20 @@ define erase-all
   mon reset
 end
 
-# Usage: flash softdevice bootloader
-
+# Usage: flash <program.elf>
 define flash
+  dont-repeat
+  mon halt
+  shell sleep 1
+  file $arg0
+  load
+  # set {int} 0x10001014 = __Vectors # TODO TEST !
+  mon reset
+  mon go
+end
+
+# Usage: flash-all <softdevice.elf> <program.elf>
+define flash-all
   dont-repeat
   erase-all
   shell sleep 1
