@@ -219,7 +219,7 @@ erase-all.jlink:
 
 startgdbserver: stopgdbserver debug.jlink .gdbinit
 	-killall $(JLINKGDBSERVER)
-	$(JLINKGDBSERVER) -single -if swd -speed 1000 -port $(GDB_PORT_NUMBER) &
+	$(JLINKGDBSERVER) -if swd -speed 1000 -port $(GDB_PORT_NUMBER) &
 	sleep 1
 
 stopgdbserver:
