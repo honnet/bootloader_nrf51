@@ -24,7 +24,7 @@ end
 
 define enter-dfu
   mon halt
-  set {int} 0x20003c7c = 0xade1e
+  set {int} 0x20003c7c = 0xBeefFace
   mon reset
   mon go
 end
