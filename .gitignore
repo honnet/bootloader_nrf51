@@ -12,4 +12,3 @@ bin/*
 # jlink files
 *.jlink
 *.log
-.gdbinit
