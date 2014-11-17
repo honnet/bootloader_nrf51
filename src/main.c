@@ -36,9 +36,8 @@
 #include "ble_debug_assert_handler.h"
 #include "softdevice_handler.h"
 #include "pstorage_platform.h"
+#include "boards.h"
 
-#define BOOTLOADER_BUTTON_PIN           29                                                      /**< Button used to enter SW update mode. */
-#define BOOTLOADER_LED_PIN              13
 
 #define APP_GPIOTE_MAX_USERS            1                                                       /**< Number of GPIOTE users in total. Used by button module and dfu_transport_serial module (flow control). */
 
@@ -64,7 +63,6 @@
  */
 void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
-    //nrf_gpio_pin_set(LED_7);
     // This call can be used for debug purposes during application development.
     // @note CAUTION: Activating this code will write the stack to flash on an error.
     //                This function should NOT be used in a final product.
@@ -101,8 +99,13 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  */
 static void leds_init(void)
 {
-    nrf_gpio_pin_clear(BOOTLOADER_LED_PIN);
-    nrf_gpio_cfg_output(BOOTLOADER_LED_PIN);
+    // inverted logic (set = off):
+    nrf_gpio_pin_set(LED_R);
+    nrf_gpio_pin_set(LED_G);
+    nrf_gpio_pin_set(LED_B);
+    nrf_gpio_cfg_output(LED_R);
+    nrf_gpio_cfg_output(LED_G);
+    nrf_gpio_cfg_output(LED_B);
 }
 
 /**@brief Function for initializing the GPIOTE handler module.
@@ -128,7 +131,7 @@ static void timers_init(void)
  */
 static void buttons_init(void)
 {
-    nrf_gpio_cfg_sense_input(BOOTLOADER_BUTTON_PIN,
+    nrf_gpio_cfg_sense_input(BUTTON,
                              NRF_GPIO_PIN_PULLDOWN,
                              NRF_GPIO_PIN_SENSE_HIGH);
 }
@@ -193,15 +196,13 @@ int main(void)
     ble_stack_init();
     scheduler_init();
 
-    bootloader_is_pushed = (nrf_gpio_pin_read(BOOTLOADER_BUTTON_PIN) == 1);
+    bootloader_is_pushed = (nrf_gpio_pin_read(BUTTON) == 1);
     bool magic_word_is_present = (MAGIC_REG == 0xBeefFace);
 
     if (bootloader_is_pushed || magic_word_is_present || (!bootloader_app_is_valid(DFU_BANK_0_REGION_START)))
     {
         if (magic_word_is_present)
             MAGIC_REG = 0xffffffff;
-
-        nrf_gpio_pin_set(BOOTLOADER_LED_PIN);
 
         // Initiate an update of the firmware.
         err_code = bootloader_dfu_start();
@@ -210,8 +211,6 @@ int main(void)
 
     if (bootloader_app_is_valid(DFU_BANK_0_REGION_START))
     {
-        nrf_gpio_pin_clear(BOOTLOADER_LED_PIN);
-
         // Select a bank region to use as application region.
         // @note: Only applications running from DFU_BANK_0_REGION_START is supported.
         bootloader_app_start(DFU_BANK_0_REGION_START);
