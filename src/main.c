@@ -37,6 +37,7 @@
 #include "softdevice_handler.h"
 #include "pstorage_platform.h"
 #include "boards.h"
+#include "nrf_delay.h"
 
 
 #define APP_GPIOTE_MAX_USERS            1                                                       /**< Number of GPIOTE users in total. Used by button module and dfu_transport_serial module (flow control). */
@@ -100,12 +101,24 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 static void leds_init(void)
 {
     // inverted logic (set = off):
-    nrf_gpio_pin_set(LED_R);
-    nrf_gpio_pin_set(LED_G);
-    nrf_gpio_pin_set(LED_B);
-    nrf_gpio_cfg_output(LED_R);
-    nrf_gpio_cfg_output(LED_G);
-    nrf_gpio_cfg_output(LED_B);
+    for (int color = 0; color < 3; color++) {
+        nrf_gpio_pin_set(leds[color]);
+        nrf_gpio_cfg_output(leds[color]);
+    }
+}
+
+/**@brief Function for testing LEDs.
+ *
+ * @details Initializes all LEDs used by the application.
+ */
+static void blink_leds(void)
+{
+    for (int loop = 0; loop < 6; loop++) {
+        for (int color = 0; color < 3; color++) {
+            nrf_gpio_pin_toggle(leds[color]);
+            nrf_delay_ms(30);
+        }
+    }
 }
 
 /**@brief Function for initializing the GPIOTE handler module.
@@ -203,6 +216,8 @@ int main(void)
     {
         if (magic_word_is_present)
             MAGIC_REG = 0xffffffff;
+
+            blink_leds();
 
         // Initiate an update of the firmware.
         err_code = bootloader_dfu_start();

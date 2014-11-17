@@ -13,6 +13,7 @@ C_SOURCE_FILES += crc16.c
 C_SOURCE_FILES += pstorage.c
 C_SOURCE_FILES += softdevice_handler.c
 C_SOURCE_FILES += hci_mem_pool.c
+C_SOURCE_FILES += nrf_delay.c
 
 # BLE
 C_SOURCE_FILES += ble_dfu.c
@@ -72,6 +73,7 @@ C_SOURCE_PATHS += $(SDK_SOURCE_PATH)app_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)sd_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble/ble_services
+C_SOURCE_PATHS += $(SDK_SOURCE_PATH)nrf_delay
 ASSEMBLER_SOURCE_PATHS = src/startup
 
 # Include Paths
