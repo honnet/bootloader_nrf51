@@ -5,8 +5,8 @@
 
 // IHM:
 #define LED_R           12       /* red   ! INVERTED LOGIC ! */
-#define LED_G           14       /* green ! INVERTED LOGIC ! */
-#define LED_B           13       /* blue  ! INVERTED LOGIC ! */
+#define LED_G           13       /* green ! INVERTED LOGIC ! */
+#define LED_B           14       /* blue  ! INVERTED LOGIC ! */
 #define BUTTON          29       /* connect to VCC when pressed */
 #define LED             LED_G    /* default green */
 // other aliases:
