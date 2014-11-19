@@ -111,14 +111,15 @@ static void leds_init(void)
  *
  * @details Initializes all LEDs used by the application.
  */
-static void blink_leds(void)
+static void test_leds(void)
 {
-    for (int loop = 0; loop < 6; loop++) {
-        for (int color = 0; color < 3; color++) {
-            nrf_gpio_pin_toggle(leds[color]);
-            nrf_delay_ms(30);
-        }
+    for (int color = 0; color < 3; color++) {
+        nrf_gpio_pin_clear(leds[color]);    // on
+        nrf_delay_ms(300);
+        nrf_gpio_pin_set(leds[color]);      // off
     }
+    nrf_delay_ms(100);
+    nrf_gpio_pin_clear(LED_G);              // green on
 }
 
 /**@brief Function for initializing the GPIOTE handler module.
@@ -217,7 +218,7 @@ int main(void)
         if (magic_word_is_present)
             MAGIC_REG = 0xffffffff;
 
-            blink_leds();
+        test_leds();
 
         // Initiate an update of the firmware.
         err_code = bootloader_dfu_start();
