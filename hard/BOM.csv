@@ -1,0 +1,23 @@
+Refdes,Description,Value,Manufacturer,Detail,digikey ref,SMD pad count (per component),total pad count,components /unit,price /unit (by 10),total /unit,price /unit (by 100),total /unit,notes
+ANT,chip antenna,2.45 Ghz,Johanson, 2450AT18A100E,712-1005-1-ND,2,2,1,0.8,0.8,,0,digikey
+BAL,balun,2.45 Ghz,ST micro elec,ST BAL-NRF01D3,497-13637-1-ND,5,5,1,0.72,0.72,0.56,0.56,digikey
+BAT,battery holder,CR2032,MPD,BC-2003,BC-2003-ND,2,2,1,0.25,0.25,0.19,0.19,digikey
+BUT,push button,off-mom,C&K Components, KMR241GLFS,401-1431-1-ND,4,4,1,0.6,0.6,0.46,0.46,digikey
+"Cc1, Cc2",capacitor 0603,12 pF,Kemet,C0603C120J5GACTU,399-1050-1-ND,2,4,2,0.04,0.08,0.02,0.04,digikey
+Cc10,capacitor 0603,47 nF,Kemet,C0603C473K5RACTU,399-7933-1-ND,2,2,1,0.06,0.06,0.03,0.03,digikey
+"Cc11, Cc7, Cc8, Ci1, Ci2",capacitor 0603,100 nF,Kemet,C0603C104K5RACTU,399-5089-1-ND,2,10,5,0.02,0.11,0.01,0.07,digikey
+"Cc3, Ci3",capacitor 0603,2.2 nF,Kemet,C0603C222K5RACTU,399-1085-1-ND,2,4,2,0.03,0.06,0.01,0.03,digikey
+Cc9,capacitor 0603,1 nF,Kemet,C0603C102K5RACTU,399-1082-1-ND,2,2,1,0.02,0.02,0.01,0.01,digikey
+Ci4,capacitor 0603,10 nF,Kemet,C0603C103K5RACTU,399-1091-1-ND,2,2,1,0.02,0.02,0.01,0.01,digikey
+CPU,CPU+BLE chip,,Nordic Semi,nRF51822-QFAA-T,,48,48,1,2.5,2.5,2.5,2.5,www.semiconductorstore.com/cart/pc/viewPrd.asp?idproduct=47970
+D,diode schottky 0603,,Comchip Technology,CDBU0130L,641-1282-1-ND,2,2,1,0.32,0.32,0.19,0.19,digikey
+IMU,9D motion sensor,,InvenSense,MPU-9150,,24,24,1,6.62,6.62,6.34,6.34,www.cdiweb.com/ProductDetail/MPU9150-InvenSense-Inc-/73953/pid=468
+LED_RGB,2-color LED,,Lumex Opto-Components,SML-LX0404SIUPGUSB,67-2125-1-ND,4,4,1,0.96,0.96,0.67,0.67,digikey
+"Rda, Rcl",resistor 0603,10 KΩ,Rohm Semiconductor,MCR03ERTF1002,RHM10.0KCFCT-ND,2,4,2,0.01,0.02,0.01,0.01,digikey
+"Rb, Rr",resistor 0603,22 Ω,Rohm Semiconductor,MCR03ERTF22R0,RHM22.0CFCT-ND,2,4,2,0.01,0.03,0.01,0.01,digikey
+Rg,resistor 0603,10 Ω,Rohm Semiconductor,MCR03ERTF10R0,RHM10.0CFCT-ND,2,4,2,0.01,0.03,0.01,0.01,digikey
+Xtal,oscilator,16MHz,NDK,NX2520SA-16MHZ-STD-CSW-4,644-1168-1-ND,4,4,1,1.4,1.4,0.97,0.97,digikey
+(5 lead less devices),,,,,,,131,27,,14.6,,12.09,total in parts for 1 unit
+(4 fine pitch devices),,,,,,,(63 holes),,,,,,
+,,,,,,,,,,,,,
+WARNING: Rb & Rg are inverted in datasheet,,,,,,,,,,,,,
