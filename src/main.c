@@ -38,6 +38,7 @@
 #include "pstorage_platform.h"
 #include "boards.h"
 #include "nrf_delay.h"
+#include "MPU9150.h"
 
 
 #define APP_GPIOTE_MAX_USERS            1                                                       /**< Number of GPIOTE users in total. Used by button module and dfu_transport_serial module (flow control). */
@@ -52,6 +53,8 @@
 
 #define SCHED_QUEUE_SIZE                20                                                      /**< Maximum number of events in the scheduler queue. */
 #define MAGIC_REG                       (*(volatile uint32_t *) 0x20003c7c)                     /**< Random address around the end of RAM. */
+
+static const int leds[] = {LED_R, LED_G, LED_B};
 
 /**@brief Function for error handling, which is called when an error has occurred.
  *
@@ -209,6 +212,13 @@ int main(void)
     buttons_init();
     ble_stack_init();
     scheduler_init();
+
+    // Needs to occur after softdevice related items are init
+    int error_code = mpu9150_init();
+    if (error_code) {
+        nrf_gpio_pin_clear(LED_R);  // red on
+        for (;;);                   // endless loop
+    }
 
     bootloader_is_pushed = (nrf_gpio_pin_read(BUTTON) == 1);
     bool magic_word_is_present = (MAGIC_REG == 0xBeefFace);

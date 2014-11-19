@@ -4,6 +4,8 @@ C_SOURCE_FILES += dfu_transport_ble.c
 C_SOURCE_FILES += dfu_dual_bank.c
 C_SOURCE_FILES += bootloader_util_arm.c
 C_SOURCE_FILES += bootloader.c
+C_SOURCE_FILES += MPU9150.c
+C_SOURCE_FILES += twi_master.c
 
 # APP Common
 C_SOURCE_FILES += app_timer.c
@@ -69,6 +71,7 @@ JLINKGDBSERVER = JLinkGDBServer
 # Source Paths
 C_SOURCE_PATHS += src
 C_SOURCE_PATHS += src/startup
+C_SOURCE_PATHS += src/imu
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)app_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)sd_common
 C_SOURCE_PATHS += $(SDK_SOURCE_PATH)ble
@@ -78,6 +81,7 @@ ASSEMBLER_SOURCE_PATHS = src/startup
 
 # Include Paths
 INCLUDEPATHS += -Isrc
+INCLUDEPATHS += -Isrc/imu
 INCLUDEPATHS += -Isrc/include
 INCLUDEPATHS += -Isrc/include/ble_transport
 INCLUDEPATHS += -I$(SDK_PATH)Include

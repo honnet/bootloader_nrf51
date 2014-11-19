@@ -13,7 +13,6 @@
 #define LED_0           LED_R
 #define LED_1           LED_G
 #define LED_2           LED_B
-const int leds[] = {LED_R, LED_G, LED_B};
 
 // UART:
 #define UART_TX_PIN     15       /* 3V */
